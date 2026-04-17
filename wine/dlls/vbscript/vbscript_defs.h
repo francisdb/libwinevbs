@@ -210,6 +210,7 @@
 #define DISPID_GLOBAL_EXECUTE                   204
 #define DISPID_GLOBAL_EXECUTEGLOBAL             205
 #define DISPID_GLOBAL_GETREF                    206
+#define DISPID_GLOBAL_GETBOUNDREF               211
 
 #define DISPID_ERR_DESCRIPTION  0
 #define DISPID_ERR_HELPCONTEXT  1

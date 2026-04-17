@@ -4667,7 +4667,72 @@ static HRESULT Global_GetRef(BuiltinDisp *This, VARIANT *arg, unsigned args_cnt,
     return MAKE_VBSERROR(VBSE_ILLEGAL_FUNC_CALL);
 }
 
-static HRESULT Global_Err(BuiltinDisp *This, VARIANT *arg, unsigned args_cnt, VARIANT *res)
+static HRESULT Global_GetBoundRef(BuiltinDisp *This, VARIANT *args, unsigned args_cnt, VARIANT *res)
+{
+    named_item_t *item;
+    function_t **funcs;
+    IDispatch *disp;
+    const WCHAR *name;
+    vbdisp_t *vbthis;
+    size_t i, cnt;
+    HRESULT hres;
+
+    TRACE("%s %s\n", debugstr_variant(args), debugstr_variant(args+1));
+
+    assert(args_cnt == 2);
+
+    if(V_VT(args) != VT_BSTR)
+        return MAKE_VBSERROR(VBSE_TYPE_MISMATCH);
+    if(V_VT(args+1) != VT_DISPATCH)
+        return MAKE_VBSERROR(VBSE_TYPE_MISMATCH);
+
+    name = V_BSTR(args);
+    if(!name || !name[0])
+        return MAKE_VBSERROR(VBSE_ILLEGAL_FUNC_CALL);
+
+    vbthis = get_vbdisp_from_dispatch(V_DISPATCH(args+1));
+    if(!vbthis) {
+        WARN("second argument is not a VBScript object\n");
+        return MAKE_VBSERROR(VBSE_TYPE_MISMATCH);
+    }
+
+    /* Search the current named item's script object first */
+    item = This->ctx->current_named_item;
+    if(item && item->script_obj) {
+        funcs = item->script_obj->global_funcs;
+        cnt = item->script_obj->global_funcs_cnt;
+        for(i = 0; i < cnt; i++) {
+            if(!vbs_wcsicmp(funcs[i]->name, name)) {
+                hres = create_bound_func_ref(This->ctx, funcs[i], vbthis, &disp);
+                if(FAILED(hres))
+                    return hres;
+                V_VT(res) = VT_DISPATCH;
+                V_DISPATCH(res) = disp;
+                return S_OK;
+            }
+        }
+    }
+
+    /* Search global script object */
+    funcs = This->ctx->script_obj->global_funcs;
+    cnt = This->ctx->script_obj->global_funcs_cnt;
+    for(i = 0; i < cnt; i++) {
+        if(!vbs_wcsicmp(funcs[i]->name, name)) {
+            hres = create_bound_func_ref(This->ctx, funcs[i], vbthis, &disp);
+            if(FAILED(hres))
+                return hres;
+            V_VT(res) = VT_DISPATCH;
+            V_DISPATCH(res) = disp;
+            return S_OK;
+        }
+    }
+
+    V_VT(res) = VT_DISPATCH;
+    V_DISPATCH(res) = NULL;
+    return S_OK;
+}
+
+static HRESULT Global_Err(BuiltinDisp *This, VARIANT *args, unsigned args_cnt, VARIANT *res)
 {
     TRACE("\n");
 
@@ -4734,6 +4799,7 @@ static const builtin_prop_t global_props[] = {
     {L"FormatDateTime",            Global_FormatDateTime, 0, 1, 2},
     {L"FormatNumber",              Global_FormatNumber, 0, 1, 5},
     {L"FormatPercent",             Global_FormatPercent, 0, 1, 5},
+    {L"GetBoundRef",               Global_GetBoundRef, 0, 2, 2},
     {L"GetLocale",                 Global_GetLocale, 0, 0},
     {L"GetObject",                 Global_GetObject, 0, 0, 2},
     {L"GetRef",                    Global_GetRef, 0, 1},

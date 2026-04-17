@@ -182,6 +182,8 @@ HRESULT get_disp_value(script_ctx_t*,IDispatch*,VARIANT*);
 void collect_objects(script_ctx_t*);
 HRESULT create_script_disp(script_ctx_t*,ScriptDisp**);
 HRESULT create_func_ref(script_ctx_t*,function_t*,IDispatch**);
+HRESULT create_bound_func_ref(script_ctx_t*,function_t*,vbdisp_t*,IDispatch**);
+vbdisp_t *get_vbdisp_from_dispatch(IDispatch*);
 function_t *script_disp_find_func(ScriptDisp*,const WCHAR*);
 
 HRESULT to_int(VARIANT*,int*);

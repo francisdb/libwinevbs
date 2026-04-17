@@ -772,6 +772,11 @@ static inline vbdisp_t *unsafe_impl_from_IDispatch(IDispatch *iface)
         : NULL;
 }
 
+vbdisp_t *get_vbdisp_from_dispatch(IDispatch *iface)
+{
+    return unsafe_impl_from_IDispatch(iface);
+}
+
 HRESULT create_vbdisp(const class_desc_t *desc, vbdisp_t **ret)
 {
     vbdisp_t *vbdisp;
@@ -836,6 +841,7 @@ typedef struct {
     LONG ref;
     function_t *func;
     script_ctx_t *ctx;
+    vbdisp_t *vbthis;
 } FuncRef;
 
 static inline FuncRef *FuncRef_from_IDispatch(IDispatch *iface)
@@ -876,6 +882,8 @@ static ULONG WINAPI FuncRef_Release(IDispatch *iface)
 
     TRACE("(%p) ref=%ld\n", This, ref);
     if(!ref) {
+        if(This->vbthis)
+            IDispatchEx_Release(&This->vbthis->IDispatchEx_iface);
         release_vbscode(This->func->code_ctx);
         free(This);
     }
@@ -916,7 +924,7 @@ static HRESULT WINAPI FuncRef_Invoke(IDispatch *iface, DISPID dispIdMember, REFI
     if(dispIdMember != DISPID_VALUE)
         return DISP_E_MEMBERNOTFOUND;
 
-    return exec_script(This->ctx, TRUE, This->func, NULL, pDispParams, pVarResult);
+    return exec_script(This->ctx, TRUE, This->func, This->vbthis, pDispParams, pVarResult);
 }
 
 static const IDispatchVtbl FuncRefVtbl = {
@@ -941,6 +949,27 @@ HRESULT create_func_ref(script_ctx_t *ctx, function_t *func, IDispatch **ret)
     ref->ref = 1;
     ref->func = func;
     ref->ctx = ctx;
+    grab_vbscode(func->code_ctx);
+
+    *ret = &ref->IDispatch_iface;
+    return S_OK;
+}
+
+HRESULT create_bound_func_ref(script_ctx_t *ctx, function_t *func, vbdisp_t *vbthis, IDispatch **ret)
+{
+    FuncRef *ref;
+
+    ref = calloc(1, sizeof(*ref));
+    if(!ref)
+        return E_OUTOFMEMORY;
+
+    ref->IDispatch_iface.lpVtbl = &FuncRefVtbl;
+    ref->ref = 1;
+    ref->func = func;
+    ref->ctx = ctx;
+    ref->vbthis = vbthis;
+    if(vbthis)
+        IDispatchEx_AddRef(&vbthis->IDispatchEx_iface);
     grab_vbscode(func->code_ctx);
 
     *ret = &ref->IDispatch_iface;
