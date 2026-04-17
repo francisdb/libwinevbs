@@ -4667,6 +4667,11 @@ static HRESULT Global_GetRef(BuiltinDisp *This, VARIANT *arg, unsigned args_cnt,
     return MAKE_VBSERROR(VBSE_ILLEGAL_FUNC_CALL);
 }
 
+static HRESULT Global_BuiltinNoop(BuiltinDisp *This, VARIANT *args, unsigned args_cnt, VARIANT *res)
+{
+    return S_OK;
+}
+
 static HRESULT Global_Err(BuiltinDisp *This, VARIANT *arg, unsigned args_cnt, VARIANT *res)
 {
     TRACE("\n");
@@ -4766,8 +4771,11 @@ static const builtin_prop_t global_props[] = {
     {L"Month",                     Global_Month, 0, 1},
     {L"MonthName",                 Global_MonthName, 0, 1, 2},
     {L"MsgBox",                    Global_MsgBox, 0, 1, 5},
+    {L"Noop",                      Global_BuiltinNoop, 0, 0, MAXDWORD},
     {L"Now",                       Global_Now, 0, 0},
     {L"Oct",                       Global_Oct, 0, 1},
+    {L"PlayMusic",                 Global_BuiltinNoop, 0, 0, MAXDWORD},
+    {L"PlaySound",                 Global_BuiltinNoop, 0, 0, MAXDWORD},
     {L"Randomize",                 Global_Randomize, 0, 0, 1},
     {L"Replace",                   Global_Replace, 0, 3, 6},
     {L"RGB",                       Global_RGB, 0, 3},
@@ -4787,6 +4795,7 @@ static const builtin_prop_t global_props[] = {
     {L"Space",                     Global_Space, 0, 1},
     {L"Split",                     Global_Split, 0, 1, 4},
     {L"Sqr",                       Global_Sqr, 0, 1},
+    {L"StopSound",                 Global_BuiltinNoop, 0, 0, MAXDWORD},
     {L"StrComp",                   Global_StrComp, 0, 2, 3},
     {L"String",                    Global_String, 0, 0, 2},
     {L"StrReverse",                Global_StrReverse, 0, 1},
