@@ -494,8 +494,23 @@ static HRESULT WINAPI Match2_Invoke(IMatch2 *iface, DISPID dispIdMember,
 		case DISPID_MATCH_SUBMATCHES: {
 			if (wFlags & DISPATCH_PROPERTYGET) {
 				// line 170: [id(DISPID_MATCH_SUBMATCHES), propget]HRESULT SubMatches([out, retval] IDispatch **ppSubMatches);
+				IDispatch *sub_matches = NULL;
+				hres = Match2_get_SubMatches(iface, &sub_matches);
+				if (FAILED(hres))
+					break;
+				if (pDispParams->cArgs > 0) {
+					// Chained-call form: obj.SubMatches(N). The propget
+					// itself takes no args, but VBScript lets callers pass
+					// args meant for the returned dispatch's default member.
+					// Wine's ITypeInfo_Invoke routes this automatically; the
+					// hand-written proxy has to forward it explicitly.
+					hres = IDispatch_Invoke(sub_matches, DISPID_VALUE, &IID_NULL, lcid,
+						wFlags, pDispParams, pVarResult, pExcepInfo, puArgErr);
+					IDispatch_Release(sub_matches);
+					return hres;
+				}
 				V_VT(&res) = VT_DISPATCH;
-				hres = Match2_get_SubMatches(iface, (IDispatch**)&V_DISPATCH(&res));
+				V_DISPATCH(&res) = sub_matches;
 			}
 			break;
 		}
@@ -738,6 +753,10 @@ static HRESULT WINAPI SubMatches_Invoke(ISubMatches *iface, DISPID dispIdMember,
 		case DISPID_VALUE: {
 			if (wFlags & DISPATCH_PROPERTYGET) {
 				// line 228: [id(DISPID_VALUE), propget]HRESULT Item([in] LONG index,[out, retval] VARIANT *pSubMatch);
+				if (pDispParams->cArgs < 1) {
+					hres = DISP_E_BADPARAMCOUNT;
+					break;
+				}
 				VARIANT var0;
 				V_VT(&var0) = VT_EMPTY;
 				VariantChangeType(&var0, &pDispParams->rgvarg[--index], 0, VT_I4);
