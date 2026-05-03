@@ -318,6 +318,8 @@ static HRESULT create_sub_matches(DWORD pos, match_state_t *result, SubMatches *
     hres = init_regexp_typeinfo(SubMatches_tid);
     if(FAILED(hres))
         return hres;
+#else
+    hres = S_OK;
 #endif
 
     ret = calloc(1, sizeof(*ret));
