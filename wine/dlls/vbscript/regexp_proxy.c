@@ -308,7 +308,7 @@ static HRESULT WINAPI RegExp2_Invoke(IRegExp2 *iface, DISPID dispIdMember,
 				VariantChangeType(&var0, &pDispParams->rgvarg[--index], 0, VT_BSTR);
 				VARIANT var1;
 				V_VT(&var1) = VT_EMPTY;
-				VariantChangeType(&var1, &pDispParams->rgvarg[--index], 0, VT_VARIANT);
+				VariantCopyInd(&var1, &pDispParams->rgvarg[--index]);
 				V_VT(&res) = VT_BSTR;
 				hres = RegExp2_Replace(iface, V_BSTR(&var0), var1, &V_BSTR(&res));
 				VariantClear(&var0);

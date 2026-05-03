@@ -219,7 +219,7 @@ static HRESULT WINAPI drivecoll_Invoke(IDriveCollection *iface, DISPID dispIdMem
 				// line 213: [id(DISPID_VALUE), propget]HRESULT Item([in] VARIANT Key, [out, retval] IDrive** ppdrive);
 				VARIANT var0;
 				V_VT(&var0) = VT_EMPTY;
-				VariantChangeType(&var0, &pDispParams->rgvarg[--index], 0, VT_VARIANT);
+				VariantCopyInd(&var0, &pDispParams->rgvarg[--index]);
 				V_VT(&res) = VT_DISPATCH;
 				hres = drivecoll_get_Item(iface, var0, (IDrive**)&V_DISPATCH(&res));
 				VariantClear(&var0);
@@ -1219,7 +1219,7 @@ static HRESULT WINAPI filecoll_Invoke(IFileCollection *iface, DISPID dispIdMembe
 				// line 441: [id(DISPID_VALUE), propget]HRESULT Item([in] VARIANT Key, [out, retval] IFile** ppfile);
 				VARIANT var0;
 				V_VT(&var0) = VT_EMPTY;
-				VariantChangeType(&var0, &pDispParams->rgvarg[--index], 0, VT_VARIANT);
+				VariantCopyInd(&var0, &pDispParams->rgvarg[--index]);
 				V_VT(&res) = VT_DISPATCH;
 				hres = filecoll_get_Item(iface, var0, (IFile**)&V_DISPATCH(&res));
 				VariantClear(&var0);
@@ -1322,7 +1322,7 @@ static HRESULT WINAPI foldercoll_Invoke(IFolderCollection *iface, DISPID dispIdM
 				// line 464: [id(DISPID_VALUE), propget]HRESULT Item([in] VARIANT Key, [out, retval] IFolder** ppfolder);
 				VARIANT var0;
 				V_VT(&var0) = VT_EMPTY;
-				VariantChangeType(&var0, &pDispParams->rgvarg[--index], 0, VT_VARIANT);
+				VariantCopyInd(&var0, &pDispParams->rgvarg[--index]);
 				V_VT(&res) = VT_DISPATCH;
 				hres = foldercoll_get_Item(iface, var0, (IFolder**)&V_DISPATCH(&res));
 				VariantClear(&var0);
