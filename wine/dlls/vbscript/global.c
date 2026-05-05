@@ -557,7 +557,7 @@ static IUnknown *create_object(script_ctx_t *ctx, const WCHAR *progid)
         hres = Dictionary_CreateInstance(cf, NULL, &IID_IUnknown, (void**)&obj);
     }
     else {
-        hres = external_create_object(progid, cf, (IUnknown*)&obj);
+        hres = external_create_object(progid, cf, &obj);
     }
 #endif
     if(FAILED(hres))
