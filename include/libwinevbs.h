@@ -44,7 +44,7 @@ typedef enum {
 
 typedef struct {
    void (*log)(libwinevbs_log_level_t level, const char* format, va_list args);
-   HRESULT (*create_object)(const WCHAR* progid, IClassFactory* cf, IUnknown* obj);
+   HRESULT (*create_object)(const WCHAR* progid, IClassFactory* cf, IUnknown** obj);
 } libwinevbs_callbacks_t;
 
 LIBWINEVBS_API void libwinevbs_init(const libwinevbs_callbacks_t* callbacks);

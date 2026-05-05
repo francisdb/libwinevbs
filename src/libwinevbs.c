@@ -43,7 +43,7 @@ void external_log_error(const char* format, ...)
    }
 }
 
-HRESULT external_create_object(const WCHAR* progid, IClassFactory* cf, IUnknown* obj)
+HRESULT external_create_object(const WCHAR* progid, IClassFactory* cf, IUnknown** obj)
 {
    if (g_callbacks.create_object)
       return g_callbacks.create_object(progid, cf, obj);
